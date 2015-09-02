@@ -53,87 +53,90 @@ function init() {
 
   uniformsNormal = THREE.UniformsUtils.clone( normalShader.uniforms );
 
-  // uniformsNormal.height.value = 0.05;
-  // uniformsNormal.resolution.value.set( rx, ry );
-  // uniformsNormal.heightMap.value = heightMap;
+  uniformsNormal.height.value = 0.05;
+  uniformsNormal.resolution.value.set( rx, ry );
+  uniformsNormal.heightMap.value = heightMap;
 
-  // var vertexShader = document.getElementById( 'vertexShader' ).textContent;
+  var vertexShader = document.getElementById( 'vertexShader' ).textContent;
 
-  // // TEXTURES
+  // TEXTURES
 
   // var specularMap = new THREE.WebGLRenderTarget( 2048, 2048, pars );
   // specularMap.generateMipmaps = false;
 
-  // var diffuseTexture1 = THREE.ImageUtils.loadTexture( "../img/stone.png", null, function () {
+  var diffuseTexture1 = THREE.ImageUtils.loadTexture( "../img/stone.png", null, function () {
 
-  //   // loadTextures();
-  //   applyShader( THREE.LuminosityShader, diffuseTexture1, specularMap );
+    // loadTextures();
+    // applyShader( THREE.LuminosityShader, diffuseTexture1, specularMap );
 
-  // } );
+  } );
 
-  // // var diffuseTexture2 = THREE.ImageUtils.loadTexture( "textures/terrain/backgrounddetailed6.jpg", null, loadTextures );
-  // // var detailTexture = THREE.ImageUtils.loadTexture( "textures/terrain/grasslight-big-nm.jpg", null, loadTextures );
+  // var diffuseTexture2 = THREE.ImageUtils.loadTexture( "textures/terrain/backgrounddetailed6.jpg", null, loadTextures );
+  // var detailTexture = THREE.ImageUtils.loadTexture( "textures/terrain/grasslight-big-nm.jpg", null, loadTextures );
 
-  // diffuseTexture1.wrapS = diffuseTexture1.wrapT = THREE.RepeatWrapping;
-  // // diffuseTexture2.wrapS = diffuseTexture2.wrapT = THREE.RepeatWrapping;
-  // // detailTexture.wrapS = detailTexture.wrapT = THREE.RepeatWrapping;
+  diffuseTexture1.wrapS = diffuseTexture1.wrapT = THREE.RepeatWrapping;
+  // diffuseTexture2.wrapS = diffuseTexture2.wrapT = THREE.RepeatWrapping;
+  // detailTexture.wrapS = detailTexture.wrapT = THREE.RepeatWrapping;
   // specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
 
-  // // TERRAIN SHADER
+  // TERRAIN SHADER
 
-  // var terrainShader = THREE.ShaderTerrain[ "terrain" ];
+  var terrainShader = THREE.ShaderTerrain[ "terrain" ];
 
-  // uniformsTerrain = THREE.UniformsUtils.clone( terrainShader.uniforms );
+  uniformsTerrain = THREE.UniformsUtils.clone( terrainShader.uniforms );
 
-  // uniformsTerrain[ "tNormal" ].value = normalMap;
-  // uniformsTerrain[ "uNormalScale" ].value = 3.5;
+  uniformsTerrain[ "tNormal" ].value = normalMap;
+  uniformsTerrain[ "uNormalScale" ].value = 3.5;
 
-  // uniformsTerrain[ "tDisplacement" ].value = heightMap;
+  uniformsTerrain[ "tDisplacement" ].value = heightMap;
 
-  // uniformsTerrain[ "tDiffuse1" ].value = diffuseTexture1;
-  // // uniformsTerrain[ "tDiffuse2" ].value = diffuseTexture2;
+  uniformsTerrain[ "tDiffuse1" ].value = diffuseTexture1;
+  // uniformsTerrain[ "tDiffuse2" ].value = diffuseTexture2;
   // uniformsTerrain[ "tSpecular" ].value = specularMap;
-  // // uniformsTerrain[ "tDetail" ].value = detailTexture;
+  // uniformsTerrain[ "tDetail" ].value = detailTexture;
 
-  // uniformsTerrain[ "enableDiffuse1" ].value = true;
+  uniformsTerrain[ "enableDiffuse1" ].value = true;
   // uniformsTerrain[ "enableDiffuse2" ].value = true;
   // uniformsTerrain[ "enableSpecular" ].value = true;
 
   // uniformsTerrain[ "diffuse" ].value.setHex( 0xffffff );
   // uniformsTerrain[ "specular" ].value.setHex( 0xffffff );
 
-  // uniformsTerrain[ "shininess" ].value = 30;
+  uniformsTerrain[ "shininess" ].value = 30;
 
-  // uniformsTerrain[ "uDisplacementScale" ].value = 375;
+  uniformsTerrain[ "uDisplacementScale" ].value = 375;
 
-  // uniformsTerrain[ "uRepeatOverlay" ].value.set( 6, 6 );
+  uniformsTerrain[ "uRepeatOverlay" ].value.set( 6, 6 );
 
-  // var params = [
-  //   [ 'heightmap',  document.getElementById( 'fragmentShaderNoise' ).textContent,   vertexShader, uniformsNoise, false ],
-  //   [ 'normal',   normalShader.fragmentShader,  normalShader.vertexShader, uniformsNormal, false ],
-  //   [ 'terrain',  terrainShader.fragmentShader, terrainShader.vertexShader, uniformsTerrain, true ]
-  //  ];
+  var params = [
+    [ 'heightmap',  document.getElementById( 'fragmentShaderNoise' ).textContent,   vertexShader, uniformsNoise, false ],
+    [ 'normal',   normalShader.fragmentShader,  normalShader.vertexShader, uniformsNormal, false ],
+    [ 'terrain',  terrainShader.fragmentShader, terrainShader.vertexShader, uniformsTerrain, true ]
+   ];
 
-  // for( var i = 0; i < params.length; i ++ ) {
+  for( var i = 0; i < params.length; i ++ ) {
 
-  //   material = new THREE.ShaderMaterial( {
+    material = new THREE.ShaderMaterial( {
 
-  //     uniforms:     params[ i ][ 3 ],
-  //     vertexShader:   params[ i ][ 2 ],
-  //     fragmentShader: params[ i ][ 1 ],
-  //     lights:     params[ i ][ 4 ],
-  //     fog:      true
-  //     } );
+      uniforms:     params[ i ][ 3 ],
+      vertexShader:   params[ i ][ 2 ],
+      fragmentShader: params[ i ][ 1 ],
+      lights:     params[ i ][ 4 ],
+      fog:      true
+      } );
 
-  //   mlib[ params[ i ][ 0 ] ] = material;
+    mlib[ params[ i ][ 0 ] ] = material;
 
-  // }
-  var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
-  stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
-  stoneTexture.repeat.set(100, 100);
-  var materialTerrain = new THREE.MeshBasicMaterial({ 
-    map: stoneTexture
-  });
+  }
+
+
+  //Simple Case
+  // var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
+  // stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+  // stoneTexture.repeat.set(100, 100);
+  // var materialTerrain = new THREE.MeshBasicMaterial({ 
+  //   map: stoneTexture
+  // });
 
 
 
@@ -141,9 +144,9 @@ function init() {
   var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
   geometryTerrain.computeTangents();
 
-  // //terrain mesh
-  // // var terrain = new THREE.Mesh( geometryTerrain, mlib[ "terrain" ] );
-  var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
+  //terrain mesh
+  var terrain = new THREE.Mesh( geometryTerrain, mlib[ "terrain" ] );
+  // var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
   terrain.position.set( 0, -125, 0 );
   terrain.rotation.x = -Math.PI / 2;
   // terrain.visible = false;
@@ -151,25 +154,25 @@ function init() {
 
 
   // // now add some better lighting
-  // var ambientLight = new THREE.AmbientLight(0x111111);
-  // ambientLight.name = 'ambient';
-  // scene.add(ambientLight);
+  var ambientLight = new THREE.AmbientLight(0x111111);
+  ambientLight.name = 'ambient';
+  scene.add(ambientLight);
 
-  // // add sunlight (light
-  // var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  // directionalLight.position = new THREE.Vector3(200, 10, -50);
-  // directionalLight.name = 'directional';
-  // scene.add(directionalLight);
+  // add sunlight (light
+  var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position = new THREE.Vector3(200, 10, -50);
+  directionalLight.name = 'directional';
+  scene.add(directionalLight);
 
   // lights
 
-  var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.15 );
-  directionalLight.position.set( -1, 1, -1 );
-  scene.add( directionalLight );
+  // var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.15 );
+  // directionalLight.position.set( -1, 1, -1 );
+  // scene.add( directionalLight );
 
-  var hemisphereLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.8 );
-  hemisphereLight.position.set( -1, 2, 1.5 );
-  scene.add( hemisphereLight );
+  // var hemisphereLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.8 );
+  // hemisphereLight.position.set( -1, 2, 1.5 );
+  // scene.add( hemisphereLight );
 
   camera.position.x = 10;
   camera.position.y = 10;
