@@ -106,7 +106,7 @@ function init() {
 
   uniformsTerrain[ "uDisplacementScale" ].value = 375;
 
-  uniformsTerrain[ "uRepeatOverlay" ].value.set( 6, 6 );
+  uniformsTerrain[ "uRepeatOverlay" ].value.set( 100, 100 );
 
   var params = [
     [ 'heightmap',  document.getElementById( 'fragmentShaderNoise' ).textContent,   vertexShader, uniformsNoise, false ],
