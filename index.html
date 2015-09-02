@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-<title>Web VR boilerplate (Cardboard and Oculus)</title>
+<title>Without Colors</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="mobile-web-app-capable" content="yes">
@@ -47,11 +47,16 @@ body {
 <!-- Stats, fps, etc. -->
 <script src="js/deps/stats.min.js"></script>
 
-<!-- Simplex Noise -->
-<script src="js/deps/SimplexNoise.js"></script>
+<!-- Simplex Noise Shaders -->
+<script id="fragmentShaderNoise" type="x-shader/x-fragment" src="js/deps/glsl/fragment_shader_noise.glsl"></script>
 
-<!-- THREEx Terrain -->
-<script src="js/deps/threex.terrain.js"></script>
+<script id="vertexShader" type="x-shader/x-vertex" src="js/deps/glsl/vertex_shader.glsl"></script>
+
+<!-- Terrain Shader -->
+<script src="js/deps/ShaderTerrain.js"></script>
+
+<script src="js/deps/NormalMapShader.js"></script>
+<script src="js/deps/LuminosityShader.js"></script>
 
 <script>
 /*
