@@ -32,26 +32,26 @@ function init() {
   //create perlin noise plane
   // HEIGHT + NORMAL MAPS
 
-  // var normalShader = THREE.NormalMapShader;
+  var normalShader = THREE.NormalMapShader;
 
-  // var rx = 256, ry = 256;
-  // var pars = { minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+  var rx = 256, ry = 256;
+  var pars = { minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
 
-  // heightMap  = new THREE.WebGLRenderTarget( rx, ry, pars );
-  // heightMap.generateMipmaps = false;
+  heightMap  = new THREE.WebGLRenderTarget( rx, ry, pars );
+  heightMap.generateMipmaps = false;
 
-  // normalMap = new THREE.WebGLRenderTarget( rx, ry, pars );
-  // normalMap.generateMipmaps = false;
+  normalMap = new THREE.WebGLRenderTarget( rx, ry, pars );
+  normalMap.generateMipmaps = false;
 
-  // uniformsNoise = {
+  uniformsNoise = {
 
-  //   time:   { type: "f", value: 1.0 },
-  //   scale:  { type: "v2", value: new THREE.Vector2( 1.5, 1.5 ) },
-  //   offset: { type: "v2", value: new THREE.Vector2( 0, 0 ) }
+    time:   { type: "f", value: 1.0 },
+    scale:  { type: "v2", value: new THREE.Vector2( 1.5, 1.5 ) },
+    offset: { type: "v2", value: new THREE.Vector2( 0, 0 ) }
 
-  // };
+  };
 
-  // uniformsNormal = THREE.UniformsUtils.clone( normalShader.uniforms );
+  uniformsNormal = THREE.UniformsUtils.clone( normalShader.uniforms );
 
   // uniformsNormal.height.value = 0.05;
   // uniformsNormal.resolution.value.set( rx, ry );
@@ -128,7 +128,7 @@ function init() {
   //   mlib[ params[ i ][ 0 ] ] = material;
 
   // }
-  var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone2.png');
+  var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
   stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
   stoneTexture.repeat.set(100, 100);
   var materialTerrain = new THREE.MeshBasicMaterial({ 
@@ -171,9 +171,9 @@ function init() {
   hemisphereLight.position.set( -1, 2, 1.5 );
   scene.add( hemisphereLight );
 
-  camera.position.x = 25;
+  camera.position.x = 10;
   camera.position.y = 10;
-  camera.position.z = 63;
+  camera.position.z = 10;
   camera.lookAt(scene.position);
 
   // apply VR positional data to camera
