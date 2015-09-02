@@ -9,3 +9,6 @@
 * introduction -> what this earth is
 * jerk camera to look at ayl
 * come up with a few points in which the story stops, and the user has to enter sometime to continue. it's a game in the sense that the user has to interact to continue, but they won't have to do anything or solve any puzzles.
+
+##Coding Pipeline
+* add gulp to copy bower components, manage dependencies, minify, etc. 

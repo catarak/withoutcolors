@@ -28,13 +28,8 @@ function init() {
   renderer.shadowMapEnabled = true;
   renderer.setPixelRatio(window.devicePixelRatio);
 
-  //create perlin noise plane, maybe sphere
-  // create a test sphere
-  var sphereGeometry = new THREE.SphereGeometry(15, 60, 60);
-  var sphereMaterial = new THREE.MeshNormalMaterial();
-  var earthMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-  earthMesh.name = 'earth';
-  scene.add(earthMesh);
+  //create perlin noise plane
+
 
   // // now add some better lighting
   // var ambientLight = new THREE.AmbientLight(0x111111);
