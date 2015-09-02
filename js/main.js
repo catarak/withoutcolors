@@ -128,10 +128,13 @@ function init() {
   //   mlib[ params[ i ][ 0 ] ] = material;
 
   // }
-
+  var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone2.png');
+  stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+  stoneTexture.repeat.set(100, 100);
   var materialTerrain = new THREE.MeshBasicMaterial({ 
-    map: THREE.ImageUtils.loadTexture('../img/stone.png')
+    map: stoneTexture
   });
+
 
 
   //terrain geometry
