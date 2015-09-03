@@ -1,7 +1,7 @@
 // global variables
 var renderer;
-var scene;
-var camera;
+var camera, scene;
+var cameraOrtho, sceneRenderTarget;
 var control;
 var stats;
 var cameraControl;
@@ -11,7 +11,24 @@ var clock;
 var dolly;
 var mlib = {};
 
+var updateNoise = true;
+
+var uniformsNoise, uniformsNormal,
+        heightMap, normalMap,
+        quadTarget;
+
 function init() {
+  //Scene (Render Target)
+  // SCENE (RENDER TARGET)
+
+  sceneRenderTarget = new THREE.Scene();
+
+  cameraOrtho = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 10000 );
+  cameraOrtho.position.z = 100;
+
+  sceneRenderTarget.add( cameraOrtho );
+
+
   clock = new THREE.Clock();
 
   scene = new THREE.Scene();
@@ -28,6 +45,8 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMapEnabled = true;
   renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.gammaInput = true;
+  renderer.gammaOutput = true;
 
   //create perlin noise plane
   // HEIGHT + NORMAL MAPS
@@ -129,15 +148,12 @@ function init() {
 
   }
 
+  //Heightmap noise stuff  
+  var plane = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight );
 
-  //Simple Case
-  // var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
-  // stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
-  // stoneTexture.repeat.set(100, 100);
-  // var materialTerrain = new THREE.MeshBasicMaterial({ 
-  //   map: stoneTexture
-  // });
-
+  quadTarget = new THREE.Mesh( plane, new THREE.MeshBasicMaterial( { color: 0x000000 } ) );
+  quadTarget.position.z = -500;
+  sceneRenderTarget.add( quadTarget );
 
 
   //terrain geometry
@@ -221,16 +237,34 @@ function init() {
 
   // Append the canvas element created by the renderer to document body element.
   document.body.appendChild(renderer.domElement);
+  renderer.autoClear = false;
   render();
 }
 
 function render(timestamp) {
   // update stats
-    stats.update();
+  stats.update();
 
   // update the camera
   cameraControl.update();
 
+  //Some stuff that one day, I will understand what it does
+  var delta = clock.getDelta();
+
+  if (updateNoise) {
+    uniformsNoise[ "offset" ].value.x += delta * 0.05;
+    uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
+
+    quadTarget.material = mlib[ "heightmap" ];
+    renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
+
+    quadTarget.material = mlib[ "normal" ];
+    renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
+    updateNoise = false;
+  }
+
+
+  //render, using the WebVR Manager
   manager.render(scene, camera, timestamp);
 
   requestAnimationFrame(render);
