@@ -15,6 +15,22 @@ var uniformsNoise, uniformsNormal,
         heightMap, normalMap,
         quadTarget;
 
+var inParameters = {
+    alea: RAND_MT,
+    generator: PN_GENERATOR,
+    width: 500,
+    height: 500,
+    widthSegments: 250,
+    heightSegments: 250,
+    depth: 150,
+    param: 3,
+    filterparam: 1,
+    filter: [ BLUR_FILTER ],
+    postgen: [ MOUNTAINS_COLORS ],
+    effect: [ DEPTHNOISE_EFFECT ],
+    canvas: document.getElementById('heightmap'),
+  };
+
 function init() {
   clock = new THREE.Clock();
   scene = new THREE.Scene();
@@ -28,7 +44,7 @@ function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
 
   //create perlin noise plane
-  // HEIGHT + NORMAL MAPS
+  var geometryTerrain = TERRAINGEN.Get( inParameters );
 
   //Simple Case
   var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
@@ -40,8 +56,8 @@ function init() {
 
 
   //terrain geometry
-  var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
-  geometryTerrain.computeTangents();
+  // var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
+  // geometryTerrain.computeTangents();
 
   //terrain mesh
   var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
@@ -105,6 +121,7 @@ function init() {
   var skybox = new THREE.Mesh(geometryBG, materialBG);
   // Add it to the scene
   this.scene.add(skybox);
+  //end skybox
 
   // Append the canvas element created by the renderer to document body element.
   document.body.appendChild(renderer.domElement);
@@ -120,19 +137,19 @@ function render(timestamp) {
   cameraControl.update();
 
   //Some stuff that one day, I will understand what it does
-  var delta = clock.getDelta();
+  // var delta = clock.getDelta();
 
-  if (updateNoise) {
-    uniformsNoise[ "offset" ].value.x += delta * 0.05;
-    uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
+  // if (updateNoise) {
+  //   uniformsNoise[ "offset" ].value.x += delta * 0.05;
+  //   uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
 
-    quadTarget.material = mlib[ "heightmap" ];
-    renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
+  //   quadTarget.material = mlib[ "heightmap" ];
+  //   renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
 
-    quadTarget.material = mlib[ "normal" ];
-    renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
-    updateNoise = false;
-  }
+  //   quadTarget.material = mlib[ "normal" ];
+  //   renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
+  //   updateNoise = false;
+  // }
 
 
   //render, using the WebVR Manager

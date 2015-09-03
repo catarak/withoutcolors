@@ -19,11 +19,18 @@ body {
   padding: 0;
   overflow: hidden;
 }
+
+#heightmap {
+  position : absolute;
+  top : 5px;
+  left : 5px;
+  display: none;
+}
 </style>
 </head>
 
 <body>
-
+  <canvas id="heightmap"></canvas>
 </body>
 
 <!-- WebGL Detector, will display error message if browser does not support WebGL. -->
@@ -51,7 +58,17 @@ body {
 <script src="js/deps/ShaderTerrain.js"></script>
 
 <script src="js/deps/NormalMapShader.js"></script>
-<script src="js/deps/LuminosityShader.js"></script>
+<script src="js/deps/LuminosityShader.js"></script> 
+
+<!-- Terrain Generator -->
+<script src="js/deps/jquery-2.1.4.min.js"></script>
+<script src="js/deps/terrain-generator/FastBlur.js"></script>
+<script src="js/deps/terrain-generator/blur.js"></script>
+<script src="js/deps/terrain-generator/depthnoise.js"></script>
+<script src="js/deps/terrain-generator/mersenne-twister.js"></script>
+<script src="js/deps/terrain-generator/mountains.js"></script>
+<script src="js/deps/terrain-generator/perlinnoise.js"></script>
+<script src="js/deps/terrain-generator/terraingen.js"></script>
 
 <script>
 /*
