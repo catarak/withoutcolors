@@ -20,22 +20,25 @@ var inParameters = {
     generator: PN_GENERATOR,
     width: 500,
     height: 500,
-    widthSegments: 250,
-    heightSegments: 250,
+    widthSegments: 150,
+    heightSegments: 150,
     depth: 150,
     param: 3,
     filterparam: 1,
     filter: [ BLUR_FILTER ],
     postgen: [ MOUNTAINS_COLORS ],
-    effect: [ DEPTHNOISE_EFFECT ],
+    effect: [ null ],
     canvas: document.getElementById('heightmap'),
+    smoothShading: true,
   };
 
 function init() {
   clock = new THREE.Clock();
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+  // camera.position.set( inParameters.width / 2, Math.max( inParameters.width, inParameters.height ) / 1.5, -inParameters.height / 1.5 );
+  // camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0x000000, 1.0);
@@ -50,9 +53,11 @@ function init() {
   var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
   stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
   stoneTexture.repeat.set(100, 100);
-  var materialTerrain = new THREE.MeshBasicMaterial({ 
+  var materialTerrain = new THREE.MeshPhongMaterial({ 
     map: stoneTexture
   });
+  // var materialTerrain = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors , shading: ( THREE.SmoothShading ) } );
+
 
 
   //terrain geometry
@@ -77,9 +82,9 @@ function init() {
   directionalLight.name = 'directional';
   scene.add(directionalLight);
 
-  camera.position.x = 10;
-  camera.position.y = 10;
-  camera.position.z = 10;
+  camera.position.x = 0;
+  camera.position.y = 100;
+  camera.position.z = -100;
   camera.lookAt(scene.position);
 
   // apply VR positional data to camera
