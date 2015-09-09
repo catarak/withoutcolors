@@ -19,13 +19,6 @@ body {
   padding: 0;
   overflow: hidden;
 }
-
-#heightmap {
-  position : absolute;
-  top : 5px;
-  left : 5px;
-  display: none;
-}
 </style>
 </head>
 
@@ -38,6 +31,14 @@ body {
 
 <!-- three.js 3d library -->
 <script src="js/deps/three.js"></script>
+
+<!-- tween.js library, for animations -->
+<script src="js/deps/tween.min.js"></script>
+
+<!-- Physi.js and Dependencies -->
+<!-- <script src="js/deps/ammo.js"></script> -->
+<script src="js/deps/physi.js"></script>
+<!-- <script src="js/deps/physijs_worker.js"></script> -->
 
 <!-- VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object. -->
 <script src="js/deps/VRControls.js"></script>

@@ -3,7 +3,7 @@ var renderer;
 var camera, scene;
 var cameraOrtho, sceneRenderTarget;
 var control;
-var stats;
+var renderStats, physicsStats;
 var cameraControl;
 var effect;
 var manager;
@@ -15,39 +15,34 @@ var uniformsNoise, uniformsNormal,
         heightMap, normalMap,
         quadTarget;
 
-// var inParameters = {
-//     alea: RAND_MT,
-//     generator: PN_GENERATOR,
-//     width: 500,
-//     height: 500,
-//     widthSegments: 150,
-//     heightSegments: 150,
-//     depth: 150,
-//     param: 3,
-//     filterparam: 1,
-//     filter: [ BLUR_FILTER ],
-//     postgen: [ null ],
-//     effect: [ null ],
-//     canvas: document.getElementById('heightmap'),
-//     smoothShading: true,
-//   };
+//this is absolutely terrible, is there a better way to do this?
+Physijs.scripts.worker = 'js/deps/physijs_worker.js';
+Physijs.scripts.ammo = 'js/deps/ammo.js';
 
 function init() {
   clock = new THREE.Clock();
-  scene = new THREE.Scene();
+
+  //Physi.js Scene, for physics simulation
+  scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
+  scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
+  scene.addEventListener(
+    'update',
+    function() {
+      scene.simulate( undefined, 2 );
+      physicsStats.update();
+    }
+  );
 
   camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-  // camera.position.set( inParameters.width / 2, Math.max( inParameters.width, inParameters.height ) / 1.5, -inParameters.height / 1.5 );
-  // camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0x000000, 1.0);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMapEnabled = true;
+  renderer.shadowMapSoft = true;
   renderer.setPixelRatio(window.devicePixelRatio);
 
   //create perlin noise plane using Simplex Noise (Perlin Noise)
-  //var geometryTerrain = TERRAINGEN.Get( inParameters );
   var NoiseGen = new SimplexNoise();
   var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 200, 200 );
   for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
@@ -65,15 +60,22 @@ function init() {
   var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
   stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
   stoneTexture.repeat.set(100, 100);
-  var materialTerrain = new THREE.MeshPhongMaterial({ 
-    map: stoneTexture,
-    shading: THREE.SmoothShading
-  });
+  var materialTerrain = Physijs.createMaterial(
+    new THREE.MeshPhongMaterial({ map: stoneTexture, shading: THREE.SmoothShading}),
+    .8,
+    .4
+  );
 
   //terrain mesh
-  var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
+  var terrain = new Physijs.HeightfieldMesh( 
+    geometryTerrain, 
+    materialTerrain,
+    0,
+    50, 
+    50 );
   terrain.position.set( 0, -10, 0 );
   terrain.rotation.x = -Math.PI / 2;
+  terrain.receiveShadow = true;
 
   scene.add( terrain );
 
@@ -137,32 +139,18 @@ function init() {
 
   // Append the canvas element created by the renderer to document body element.
   document.body.appendChild(renderer.domElement);
-  renderer.autoClear = false;
+  // renderer.autoClear = false;
+  createShapes();
+  scene.simulate();
   render();
 }
 
 function render(timestamp) {
   // update stats
-  stats.update();
+  renderStats.update();
 
   // update the camera
   cameraControl.update();
-
-  //Some stuff that one day, I will understand what it does
-  // var delta = clock.getDelta();
-
-  // if (updateNoise) {
-  //   uniformsNoise[ "offset" ].value.x += delta * 0.05;
-  //   uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
-
-  //   quadTarget.material = mlib[ "heightmap" ];
-  //   renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
-
-  //   quadTarget.material = mlib[ "normal" ];
-  //   renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
-  //   updateNoise = false;
-  // }
-
 
   //render, using the WebVR Manager
   manager.render(scene, camera, timestamp);
@@ -171,37 +159,84 @@ function render(timestamp) {
 }
 
 function addStatsObject() {
-  stats = new Stats();
-  stats.setMode(0);
+  //WebGL render stats
+  renderStats = new Stats();
+  renderStats.setMode(0);
 
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.left = '0px';
-  stats.domElement.style.top = '0px';
+  renderStats.domElement.style.position = 'absolute';
+  renderStats.domElement.style.left = '0px';
+  renderStats.domElement.style.top = '0px';
 
-  document.body.appendChild(stats.domElement);
+  document.body.appendChild(renderStats.domElement);
+
+  //Physics stats
+  physicsStats = new Stats();
+  physicsStats.domElement.style.position = 'absolute';
+  physicsStats.domElement.style.top = '50px';
+  physicsStats.domElement.style.zIndex = 100;
+  document.body.appendChild( physicsStats.domElement );
 }
 
-function applyShader( shader, texture, target ) {
+function createShapes() {
+  var addShapes = true;
+  var shapes = 0;
+  var numShapes = 0;
+  var box_geometry = new THREE.CubeGeometry( 3, 3, 3 );
+  var sphere_geometry = new THREE.SphereGeometry( 1.5, 32, 32 );
 
-  var shaderMaterial = new THREE.ShaderMaterial( {
+  function dropShapes() {
+    var shape, material = new THREE.MeshLambertMaterial({ opacity: 0, transparent: true });
 
-    fragmentShader: shader.fragmentShader,
-    vertexShader: shader.vertexShader,
-    uniforms: THREE.UniformsUtils.clone( shader.uniforms )
+    switch ( Math.floor(Math.random() * 2) ) {
+      case 0:
+        shape = new Physijs.BoxMesh(
+          box_geometry,
+          material
+        );
+        break;
+      
+      case 1:
+        shape = new Physijs.SphereMesh(
+          sphere_geometry,
+          material,
+          undefined,
+          { restitution: Math.random() * 1.5 }
+        );
+        break;
+    }
 
-  } );
+    shape.material.color.setRGB( Math.random() * 100 / 100, Math.random() * 100 / 100, Math.random() * 100 / 100 );
+    shape.castShadow = true;
+    shape.receiveShadow = true;
+    
+    shape.position.set(
+      Math.random() * 30 - 15,
+      20,
+      Math.random() * 30 - 15
+    );
+    
+    shape.rotation.set(
+      Math.random() * Math.PI,
+      Math.random() * Math.PI,
+      Math.random() * Math.PI
+    );
+    
+    if ( addshapes ) {
+      shape.addEventListener( 'ready', createShape );
+    }
+    scene.add( shape );
+    numShapes += 1;
 
-  shaderMaterial.uniforms[ "tDiffuse" ].value = texture;
-
-  var sceneTmp = new THREE.Scene();
-
-  var meshTmp = new THREE.Mesh( new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight ), shaderMaterial );
-  meshTmp.position.z = -500;
-
-  sceneTmp.add( meshTmp );
-
-  renderer.render( sceneTmp, camera, target, true );
-
+    if (numShapes > 10) addshapes = false;
+    
+    new TWEEN.Tween(shape.material).to({opacity: 1}, 500).start();
+    
+    document.getElementById('shapecount').textContent = (++shapes) + ' shapes created';
+  }
+    
+  return function() {
+    setTimeout( doCreateShape, 250 );
+  };
 }
 
 /**
