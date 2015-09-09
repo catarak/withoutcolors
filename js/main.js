@@ -47,15 +47,19 @@ function init() {
   renderer.setPixelRatio(window.devicePixelRatio);
 
   //create perlin noise plane using Simplex Noise (Perlin Noise)
-  //var geometryTerrain = TERRAINGEN.Get( inParameters );
-  var NoiseGen = new SimplexNoise;
-  var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 150, 150 );
-  for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
-    var vertex = geometryTerrain.vertices[i];
-    vertex.z = NoiseGen.noise( vertex.x / 50, vertex.y / 50 ) * 11 + RAND_MT.Random() * 200 / 255;
-  }
-  geometryTerrain.computeFaceNormals();
-  geometryTerrain.computeVertexNormals();
+  var geometryTerrain = TERRAINGEN.Get( inParameters );
+  // var NoiseGen = new SimplexNoise;
+  // var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 150, 150 );
+  // for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
+  //   var vertex = geometryTerrain.vertices[i];
+  //   var depth = 0;
+  //   if (i % 3 === 0) {
+  //     depth = RAND_MT.Random() * 100 / 255;
+  //   }
+  //   vertex.z = (NoiseGen.noise( vertex.x/25, vertex.y/25)) * 10 + 1;
+  // }
+  // geometryTerrain.computeFaceNormals();
+  // geometryTerrain.computeVertexNormals();
 
   //Simple Case
   var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
@@ -75,8 +79,8 @@ function init() {
 
   //terrain mesh
   var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
-  terrain.position.set( 0, -20, 0 );
-  terrain.rotation.x = -Math.PI / 2;
+  terrain.position.set( 0, -200, 0 );
+  terrain.rotation.x = 0;
   scene.add( terrain );
 
 
@@ -95,7 +99,6 @@ function init() {
   camera.position.y = 0;
   camera.position.z = 0;
   camera.lookAt(scene.position);
-  camera.rotation.order = 'YXZ';
 
   // apply VR positional data to camera
   cameraControl = new THREE.VRControls(camera);
