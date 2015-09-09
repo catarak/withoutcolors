@@ -8,8 +8,6 @@ var cameraControl;
 var effect;
 var manager;
 var clock;
-var dolly;
-var mlib = {};
 
 var updateNoise = true;
 
@@ -17,155 +15,68 @@ var uniformsNoise, uniformsNormal,
         heightMap, normalMap,
         quadTarget;
 
+var inParameters = {
+    alea: RAND_MT,
+    generator: PN_GENERATOR,
+    width: 500,
+    height: 500,
+    widthSegments: 150,
+    heightSegments: 150,
+    depth: 150,
+    param: 3,
+    filterparam: 1,
+    filter: [ BLUR_FILTER ],
+    postgen: [ MOUNTAINS_COLORS ],
+    effect: [ null ],
+    canvas: document.getElementById('heightmap'),
+    smoothShading: true,
+  };
+
 function init() {
-  //Scene (Render Target)
-  // SCENE (RENDER TARGET)
-
-  sceneRenderTarget = new THREE.Scene();
-
-  cameraOrtho = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 10000 );
-  cameraOrtho.position.z = 100;
-
-  sceneRenderTarget.add( cameraOrtho );
-
-
   clock = new THREE.Clock();
-
   scene = new THREE.Scene();
 
-  dolly = new THREE.Group();
-  dolly.position.set( 10000, 10000, 10000 );
-
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  // camera.position.z = 0.0001;
-  // dolly.add( camera );
+  camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+  // camera.position.set( inParameters.width / 2, Math.max( inParameters.width, inParameters.height ) / 1.5, -inParameters.height / 1.5 );
+  // camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0x000000, 1.0);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMapEnabled = true;
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.gammaInput = true;
-  renderer.gammaOutput = true;
 
-  //create perlin noise plane
-  // HEIGHT + NORMAL MAPS
-
-  var normalShader = THREE.NormalMapShader;
-
-  var rx = 256, ry = 256;
-  var pars = { minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
-
-  heightMap  = new THREE.WebGLRenderTarget( rx, ry, pars );
-  heightMap.generateMipmaps = false;
-
-  normalMap = new THREE.WebGLRenderTarget( rx, ry, pars );
-  normalMap.generateMipmaps = false;
-
-  uniformsNoise = {
-
-    time:   { type: "f", value: 1.0 },
-    scale:  { type: "v2", value: new THREE.Vector2( 1.5, 1.5 ) },
-    offset: { type: "v2", value: new THREE.Vector2( 0, 0 ) }
-
-  };
-
-  uniformsNormal = THREE.UniformsUtils.clone( normalShader.uniforms );
-
-  uniformsNormal.height.value = 0.05;
-  uniformsNormal.resolution.value.set( rx, ry );
-  uniformsNormal.heightMap.value = heightMap;
-
-  var vertexShader = document.getElementById( 'vertexShader' ).textContent;
-
-  // TEXTURES
-
-  // var specularMap = new THREE.WebGLRenderTarget( 2048, 2048, pars );
-  // specularMap.generateMipmaps = false;
-
-  var diffuseTexture1 = THREE.ImageUtils.loadTexture( "../img/stone.png", null, function () {
-
-    // loadTextures();
-    // applyShader( THREE.LuminosityShader, diffuseTexture1, specularMap );
-
-  } );
-
-  // var diffuseTexture2 = THREE.ImageUtils.loadTexture( "textures/terrain/backgrounddetailed6.jpg", null, loadTextures );
-  // var detailTexture = THREE.ImageUtils.loadTexture( "textures/terrain/grasslight-big-nm.jpg", null, loadTextures );
-
-  diffuseTexture1.wrapS = diffuseTexture1.wrapT = THREE.RepeatWrapping;
-  // diffuseTexture2.wrapS = diffuseTexture2.wrapT = THREE.RepeatWrapping;
-  // detailTexture.wrapS = detailTexture.wrapT = THREE.RepeatWrapping;
-  // specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
-
-  // TERRAIN SHADER
-
-  var terrainShader = THREE.ShaderTerrain[ "terrain" ];
-
-  uniformsTerrain = THREE.UniformsUtils.clone( terrainShader.uniforms );
-
-  uniformsTerrain[ "tNormal" ].value = normalMap;
-  uniformsTerrain[ "uNormalScale" ].value = 3.5;
-
-  uniformsTerrain[ "tDisplacement" ].value = heightMap;
-
-  uniformsTerrain[ "tDiffuse1" ].value = diffuseTexture1;
-  // uniformsTerrain[ "tDiffuse2" ].value = diffuseTexture2;
-  // uniformsTerrain[ "tSpecular" ].value = specularMap;
-  // uniformsTerrain[ "tDetail" ].value = detailTexture;
-
-  uniformsTerrain[ "enableDiffuse1" ].value = true;
-  // uniformsTerrain[ "enableDiffuse2" ].value = true;
-  // uniformsTerrain[ "enableSpecular" ].value = true;
-
-  // uniformsTerrain[ "diffuse" ].value.setHex( 0xffffff );
-  // uniformsTerrain[ "specular" ].value.setHex( 0xffffff );
-
-  uniformsTerrain[ "shininess" ].value = 30;
-
-  uniformsTerrain[ "uDisplacementScale" ].value = 375;
-
-  uniformsTerrain[ "uRepeatOverlay" ].value.set( 100, 100 );
-
-  var params = [
-    [ 'heightmap',  document.getElementById( 'fragmentShaderNoise' ).textContent,   vertexShader, uniformsNoise, false ],
-    [ 'normal',   normalShader.fragmentShader,  normalShader.vertexShader, uniformsNormal, false ],
-    [ 'terrain',  terrainShader.fragmentShader, terrainShader.vertexShader, uniformsTerrain, true ]
-   ];
-
-  for( var i = 0; i < params.length; i ++ ) {
-
-    material = new THREE.ShaderMaterial( {
-
-      uniforms:     params[ i ][ 3 ],
-      vertexShader:   params[ i ][ 2 ],
-      fragmentShader: params[ i ][ 1 ],
-      lights:     params[ i ][ 4 ],
-      fog:      true
-      } );
-
-    mlib[ params[ i ][ 0 ] ] = material;
-
+  //create perlin noise plane using Simplex Noise (Perlin Noise)
+  //var geometryTerrain = TERRAINGEN.Get( inParameters );
+  var NoiseGen = new SimplexNoise;
+  var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 150, 150 );
+  for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
+    var vertex = geometryTerrain.vertices[i];
+    vertex.z = NoiseGen.noise( vertex.x / 50, vertex.y / 50 ) * 11 + RAND_MT.Random() * 200 / 255;
   }
+  geometryTerrain.computeFaceNormals();
+  geometryTerrain.computeVertexNormals();
 
-  //Heightmap noise stuff  
-  var plane = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight );
+  //Simple Case
+  var stoneTexture = THREE.ImageUtils.loadTexture('../img/stone.png');
+  stoneTexture.wrapS = stoneTexture.wrapT = THREE.RepeatWrapping;
+  stoneTexture.repeat.set(100, 100);
+  var materialTerrain = new THREE.MeshPhongMaterial({ 
+    map: stoneTexture,
+    shading: ( THREE.SmoothShading )
+  });
+  // var materialTerrain = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors , shading: ( THREE.SmoothShading ) } );
 
-  quadTarget = new THREE.Mesh( plane, new THREE.MeshBasicMaterial( { color: 0x000000 } ) );
-  quadTarget.position.z = -500;
-  sceneRenderTarget.add( quadTarget );
 
 
   //terrain geometry
-  var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
-  geometryTerrain.computeTangents();
+  // var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
+  // geometryTerrain.computeTangents();
 
   //terrain mesh
-  var terrain = new THREE.Mesh( geometryTerrain, mlib[ "terrain" ] );
-  // var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
-  terrain.position.set( 0, -125, 0 );
+  var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
+  terrain.position.set( 0, -20, 0 );
   terrain.rotation.x = -Math.PI / 2;
-  // terrain.visible = false;
   scene.add( terrain );
 
 
@@ -180,20 +91,11 @@ function init() {
   directionalLight.name = 'directional';
   scene.add(directionalLight);
 
-  // lights
-
-  // var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.15 );
-  // directionalLight.position.set( -1, 1, -1 );
-  // scene.add( directionalLight );
-
-  // var hemisphereLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.8 );
-  // hemisphereLight.position.set( -1, 2, 1.5 );
-  // scene.add( hemisphereLight );
-
-  camera.position.x = 10;
-  camera.position.y = 10;
-  camera.position.z = 10;
+  camera.position.x = 0;
+  camera.position.y = 0;
+  camera.position.z = 0;
   camera.lookAt(scene.position);
+  camera.rotation.order = 'YXZ';
 
   // apply VR positional data to camera
   cameraControl = new THREE.VRControls(camera);
@@ -202,7 +104,7 @@ function init() {
   effect = new THREE.VREffect(renderer);
   effect.setSize(window.innerWidth, window.innerHeight);
 
-   manager = new WebVRManager(renderer, effect);
+  manager = new WebVRManager(renderer, effect);
 
   addStatsObject();
 
@@ -234,6 +136,7 @@ function init() {
   var skybox = new THREE.Mesh(geometryBG, materialBG);
   // Add it to the scene
   this.scene.add(skybox);
+  //end skybox
 
   // Append the canvas element created by the renderer to document body element.
   document.body.appendChild(renderer.domElement);
@@ -249,19 +152,19 @@ function render(timestamp) {
   cameraControl.update();
 
   //Some stuff that one day, I will understand what it does
-  var delta = clock.getDelta();
+  // var delta = clock.getDelta();
 
-  if (updateNoise) {
-    uniformsNoise[ "offset" ].value.x += delta * 0.05;
-    uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
+  // if (updateNoise) {
+  //   uniformsNoise[ "offset" ].value.x += delta * 0.05;
+  //   uniformsTerrain[ "uOffset" ].value.x = 4 * uniformsNoise[ "offset" ].value.x;
 
-    quadTarget.material = mlib[ "heightmap" ];
-    renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
+  //   quadTarget.material = mlib[ "heightmap" ];
+  //   renderer.render( sceneRenderTarget, cameraOrtho, heightMap, true );
 
-    quadTarget.material = mlib[ "normal" ];
-    renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
-    updateNoise = false;
-  }
+  //   quadTarget.material = mlib[ "normal" ];
+  //   renderer.render( sceneRenderTarget, cameraOrtho, normalMap, true );
+  //   updateNoise = false;
+  // }
 
 
   //render, using the WebVR Manager
