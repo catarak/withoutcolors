@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "threejs": "*",
-    "dat.gui": "*"
+    "dat.gui": "*",
+    "physijs": "*"
   }
 }

@@ -49,14 +49,14 @@ function init() {
   //create perlin noise plane using Simplex Noise (Perlin Noise)
   //var geometryTerrain = TERRAINGEN.Get( inParameters );
   var NoiseGen = new SimplexNoise;
-  var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 150, 150 );
+  var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 200, 200 );
   for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
     var vertex = geometryTerrain.vertices[i];
     var depth = 0;
     if (i % 3 === 0) {
-      depth = RAND_MT.Random() * 100 / 255;
+      depth = RAND_MT.Random() - 0.5;
     }
-    vertex.z = (NoiseGen.noise( vertex.x/25, vertex.y/25)) * 10 + 1;
+    vertex.z = (NoiseGen.noise( vertex.x/25, vertex.y/25)) * (6 + depth*3);
   }
   geometryTerrain.computeFaceNormals();
   geometryTerrain.computeVertexNormals();
@@ -67,7 +67,7 @@ function init() {
   stoneTexture.repeat.set(100, 100);
   var materialTerrain = new THREE.MeshPhongMaterial({ 
     map: stoneTexture,
-    shading: ( THREE.SmoothShading )
+    shading: THREE.SmoothShading
   });
   // var materialTerrain = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors , shading: ( THREE.SmoothShading ) } );
 
