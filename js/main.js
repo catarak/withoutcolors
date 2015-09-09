@@ -17,7 +17,7 @@ var uniformsNoise, uniformsNormal,
 
 //this is absolutely terrible, is there a better way to do this?
 Physijs.scripts.worker = 'js/deps/physijs_worker.js';
-Physijs.scripts.ammo = 'js/deps/ammo.js';
+Physijs.scripts.ammo = 'ammo.js';
 
 function init() {
   clock = new THREE.Clock();
