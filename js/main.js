@@ -15,22 +15,22 @@ var uniformsNoise, uniformsNormal,
         heightMap, normalMap,
         quadTarget;
 
-var inParameters = {
-    alea: RAND_MT,
-    generator: PN_GENERATOR,
-    width: 500,
-    height: 500,
-    widthSegments: 150,
-    heightSegments: 150,
-    depth: 150,
-    param: 3,
-    filterparam: 1,
-    filter: [ BLUR_FILTER ],
-    postgen: [ null ],
-    effect: [ null ],
-    canvas: document.getElementById('heightmap'),
-    smoothShading: true,
-  };
+// var inParameters = {
+//     alea: RAND_MT,
+//     generator: PN_GENERATOR,
+//     width: 500,
+//     height: 500,
+//     widthSegments: 150,
+//     heightSegments: 150,
+//     depth: 150,
+//     param: 3,
+//     filterparam: 1,
+//     filter: [ BLUR_FILTER ],
+//     postgen: [ null ],
+//     effect: [ null ],
+//     canvas: document.getElementById('heightmap'),
+//     smoothShading: true,
+//   };
 
 function init() {
   clock = new THREE.Clock();
@@ -48,7 +48,7 @@ function init() {
 
   //create perlin noise plane using Simplex Noise (Perlin Noise)
   //var geometryTerrain = TERRAINGEN.Get( inParameters );
-  var NoiseGen = new SimplexNoise;
+  var NoiseGen = new SimplexNoise();
   var geometryTerrain = new THREE.PlaneGeometry( 500, 500, 200, 200 );
   for ( var i = 0; i < geometryTerrain.vertices.length; i++ ) {
     var vertex = geometryTerrain.vertices[i];
@@ -69,18 +69,9 @@ function init() {
     map: stoneTexture,
     shading: THREE.SmoothShading
   });
-  // var materialTerrain = new THREE.MeshPhongMaterial( { vertexColors: THREE.VertexColors , shading: ( THREE.SmoothShading ) } );
-
-
-
-  //terrain geometry
-  // var geometryTerrain = new THREE.PlaneBufferGeometry( 6000, 6000, 256, 256 );
-  // geometryTerrain.computeTangents();
 
   //terrain mesh
   var terrain = new THREE.Mesh( geometryTerrain, materialTerrain );
-  // terrain.position.set( 0, -200, 0 );
-  // terrain.rotation.x = 0;
   terrain.position.set( 0, -10, 0 );
   terrain.rotation.x = -Math.PI / 2;
 
